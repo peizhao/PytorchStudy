@@ -80,5 +80,5 @@ def train(net, config):
 
 if __name__ == "__main__":
     cf = Config(50, 0.01, True)
-    net = AlexNet.AlexNetRaw()
+    net = AlexNet.AlexNet()
     train(net,cf)
