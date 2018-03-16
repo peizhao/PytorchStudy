@@ -101,5 +101,6 @@ ENV/
 .mypy_cache/
 
 #ignore data
-data/*
+data/mnist/
+data/cifar100/
 .idea/
