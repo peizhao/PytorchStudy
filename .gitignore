@@ -102,3 +102,4 @@ ENV/
 
 #ignore data
 data/*
+.idea/
