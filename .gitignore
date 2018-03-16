@@ -102,5 +102,6 @@ ENV/
 
 #ignore data
 data/mnist/
+data/cifar10/
 data/cifar100/
 .idea/

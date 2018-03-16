@@ -12,7 +12,7 @@ def train(net, config):
     train_data, test_data = getDataLoader()
     # loss function and the SGD
     criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.SGD(net.parameters(), config.lr)
+    optimizer = torch.optim.SGD(net.parameters(), config.lr, weight_decay=1e-4)
     if(config.use_cuda):
         net = net.cuda()
         criterion = criterion.cuda()
