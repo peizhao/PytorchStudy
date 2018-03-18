@@ -46,6 +46,7 @@ class VGGNet(nn.Module):
         x = self.features(x)
         x = x.view(x.shape[0], -1)
         x = self.fc(x)
+        return x
 
 if __name__ == "__main__":
     vgg_net = vgg_stack((1, 1, 2, 2, 2), ((3, 64), (64, 128), (128, 256), (256, 512), (512, 512)))

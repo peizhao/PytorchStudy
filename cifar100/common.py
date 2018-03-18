@@ -8,18 +8,18 @@ from torchvision import transforms
 
 def getDataLoader():
     transform_train = transforms.Compose([
-        transforms.Resize(32),
+        transforms.Scale(32),
         transforms.ToTensor(),
         transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
     ])
 
     transform_test = transforms.Compose([
-        transforms.Resize(32),
+        transforms.Scale(32),
         transforms.ToTensor(),
         transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
     ])
-    train_set = cifar.CIFAR100('../data/cifar100', train=True, transform=transform_train, download=False)
-    test_set = cifar.CIFAR100('../data/cifar100', train=False, transform=transform_test, download=False)
+    train_set = cifar.CIFAR100('../data/cifar100', train=True, transform=transform_train, download=True)
+    test_set = cifar.CIFAR100('../data/cifar100', train=False, transform=transform_test, download=True)
     print(len(train_set))
     train_data = DataLoader(train_set, batch_size=64, shuffle=True)
     test_data = DataLoader(test_set, batch_size=128, shuffle=False)

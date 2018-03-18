@@ -6,15 +6,15 @@ from torch.autograd import Variable
 from torch.utils.data import DataLoader
 from torchvision import transforms
 
-def getDataLoader():
+def getDataLoader_Cifar10():
     transform_train = transforms.Compose([
-        transforms.Resize(32),
+        transforms.Scale(32),
         transforms.ToTensor(),
         transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
     ])
 
     transform_test = transforms.Compose([
-        transforms.Resize(32),
+        transforms.Scale(32),
         transforms.ToTensor(),
         transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
     ])
@@ -32,7 +32,7 @@ class Config:
         self.use_cuda = use_cuda
 
 if __name__ == "__main__":
-    train_data, test_data = getDataLoader()
+    train_data, test_data = getDataLoader_Cifar10()
     data, label = next(iter(train_data))
     print("Training data len: {}".format(len(train_data)*64))
     print("Test data len: {}".format(len(test_data)*128))
