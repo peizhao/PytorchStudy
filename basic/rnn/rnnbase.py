@@ -51,3 +51,18 @@ print(lstm_seq.weight_ih_l2.shape)
 print(lstm_seq.bias_ih_l2.shape)
 print(lstm_seq.weight_hh_l2.shape)
 print(lstm_seq.bias_hh_l2.shape)
+
+print("Basic Ops of Embedding ...")
+embedding = nn.Embedding(10, 3)
+input = Variable(torch.LongTensor([[1,2,4,5],[4,3,2,9]]))
+output = embedding(input)
+for name, param in embedding.named_parameters():
+    print("{} : {}".format(name, param.shape))
+print(output)
+
+embedding = nn.Embedding(19, 5, padding_idx=0)
+for name, param in embedding.named_parameters():
+    print("{} : {}".format(name, param.shape))
+input = Variable(torch.LongTensor([[0,2,0,5]]))
+output = embedding(input)
+print(output)
