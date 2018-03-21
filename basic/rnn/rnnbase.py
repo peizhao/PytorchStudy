@@ -52,6 +52,16 @@ print(lstm_seq.bias_ih_l2.shape)
 print(lstm_seq.weight_hh_l2.shape)
 print(lstm_seq.bias_hh_l2.shape)
 
+print("input shape is (1,1,50)")
+x = Variable(torch.randn(1,1,50)) # input
+lstm_seq_out, _ = lstm_seq(x)
+print("lstm_seq_out shape is {}".format(lstm_seq_out.shape))
+
+print("input shape is (3,1,50)")
+x = Variable(torch.randn(3,1,50)) # input
+lstm_seq_out, _ = lstm_seq(x)
+print("lstm_seq_out shape is {}".format(lstm_seq_out.shape))
+
 print("Basic Ops of Embedding ...")
 embedding = nn.Embedding(10, 3)
 input = Variable(torch.LongTensor([[1,2,4,5],[4,3,2,9]]))
@@ -66,3 +76,9 @@ for name, param in embedding.named_parameters():
 input = Variable(torch.LongTensor([[0,2,0,5]]))
 output = embedding(input)
 print(output)
+
+print("Basic Ops of GRU ...")
+rnn = nn.GRU(10,20,2)
+input =Variable(torch.randn(5,3,10)) # (seq, batch, input_size)
+output,_ = rnn(input)
+print("GRU output shape is {}".format(output.shape))
