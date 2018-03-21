@@ -63,18 +63,23 @@ lstm_seq_out, _ = lstm_seq(x)
 print("lstm_seq_out shape is {}".format(lstm_seq_out.shape))
 
 print("Basic Ops of Embedding ...")
-embedding = nn.Embedding(10, 3)
-input = Variable(torch.LongTensor([[1,2,4,5],[4,3,2,9]]))
+embedding = nn.Embedding(10, 3)   #  the inner matrix is 12x5
+input = Variable(torch.LongTensor([[1,2,4,5],[4,3,2,9]])) # the 1,2,4,5 rows and 4,3,2,9 rows
 output = embedding(input)
-for name, param in embedding.named_parameters():
-    print("{} : {}".format(name, param.shape))
+print("result is")
 print(output)
-
-embedding = nn.Embedding(19, 5, padding_idx=0)
+print("Embedding param: ")
 for name, param in embedding.named_parameters():
     print("{} : {}".format(name, param.shape))
-input = Variable(torch.LongTensor([[0,2,0,5]]))
+    print(param)
+
+embedding = nn.Embedding(12, 5, padding_idx=0)   # the inner matrix is 12x5
+for name, param in embedding.named_parameters():
+    print("{} : {}".format(name, param.shape))
+    print(param)
+input = Variable(torch.LongTensor([[0, 2, 0, 5]]))  # the 0th,2th,0th,5th row of the inner 12x5 matrix
 output = embedding(input)
+print("result is:")
 print(output)
 
 print("Basic Ops of GRU ...")
