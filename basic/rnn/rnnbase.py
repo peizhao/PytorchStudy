@@ -83,7 +83,10 @@ print("result is:")
 print(output)
 
 print("Basic Ops of GRU ...")
-rnn = nn.GRU(10,20,2)
+grnNet = nn.GRU(10,20,4)
 input =Variable(torch.randn(5,3,10)) # (seq, batch, input_size)
-output,_ = rnn(input)
+output,h_n = grnNet(input)
 print("GRU output shape is {}".format(output.shape))
+print("GRU h_n shape is {}".format(h_n.shape))
+for name, param in grnNet.named_parameters():
+    print("{} : {}".format(name, param.shape))
