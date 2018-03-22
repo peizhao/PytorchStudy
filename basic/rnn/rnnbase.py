@@ -90,3 +90,12 @@ print("GRU output shape is {}".format(output.shape))
 print("GRU h_n shape is {}".format(h_n.shape))
 for name, param in grnNet.named_parameters():
     print("{} : {}".format(name, param.shape))
+
+print("LSTM vs GRU ...")
+gruNet = nn.GRU(10,20,2)
+lstmNet = nn.LSTM(10,20,2)
+input = Variable(torch.randn(1,1,10))
+gruOut, gruHiden = grnNet(input)
+lstmOut, lstmHiden = lstmNet(input)
+print("gruOut shape: {}  gruHiden Shape: {}".format(gruOut.shape, gruHiden.shape))
+print("lstmOut shape: {}  lstmHiden Shape: {}".format(lstmOut.shape, lstmHiden[0].shape))
