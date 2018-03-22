@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from __future__ import unicode_literals, print_function, division
 from io import open
 import unicodedata
@@ -16,7 +18,6 @@ use_cuda = torch.cuda.is_available()
 SOS_token = 0
 EOS_token = 1
 
-
 class Lang:
     def __init__(self, name):
         self.name = name
@@ -27,6 +28,10 @@ class Lang:
 
     def addSentence(self, sentence):
         for word in sentence.split(' '):
+            self.addWord(word)
+
+    def addSentenc_Chinese(self, sentence):
+        for word in sentence:
             self.addWord(word)
 
     def addWord(self, word):
@@ -47,12 +52,10 @@ def unicodeToAscii(s):
     )
 
 # Lowercase, trim, and remove non-letter characters
-
-
 def normalizeString(s):
     s = unicodeToAscii(s.lower().strip())
     s = re.sub(r"([.!?])", r" \1", s)
-    s = re.sub(r"[^a-zA-Z.!?]+", r" ", s)
+    #s = re.sub(r"[^a-zA-Z.!?]+", r" ", s)
     return s
 
 def readLangs(lang1, lang2, reverse=False):
@@ -64,6 +67,10 @@ def readLangs(lang1, lang2, reverse=False):
 
     # Split every line into pairs and normalize
     pairs = [[normalizeString(s) for s in l.split('\t')] for l in lines]
+
+    # for l in lines:
+    #     for s in l.split('\t'):
+    #         s_n = normalizeString(s)
 
     # Reverse pairs, make Lang instances
     if reverse:
@@ -93,26 +100,33 @@ def filterPair(p):
         len(p[1].split(' ')) < MAX_LENGTH and \
         p[1].startswith(eng_prefixes)
 
+def filterPair_Chinese(p):
+    return len(p[0]) < MAX_LENGTH and \
+        len(p[1].split(' ')) < MAX_LENGTH and \
+        p[1].startswith(eng_prefixes)
 
 def filterPairs(pairs):
     return [pair for pair in pairs if filterPair(pair)]
 
+def filterPairs_Chinese(pairs):
+    return [pair for pair in pairs if filterPair_Chinese(pair)]
+
 def prepareData(lang1, lang2, reverse=False):
     input_lang, output_lang, pairs = readLangs(lang1, lang2, reverse)
     print("Read %s sentence pairs" % len(pairs))
-    pairs = filterPairs(pairs)
+    pairs = filterPairs_Chinese(pairs)
     print("Trimmed to %s sentence pairs" % len(pairs))
     print("Counting words...")
     for pair in pairs:
-        input_lang.addSentence(pair[0])
+        input_lang.addSentenc_Chinese(pair[0])
         output_lang.addSentence(pair[1])
     print("Counted words:")
     print(input_lang.name, input_lang.n_words)
     print(output_lang.name, output_lang.n_words)
     return input_lang, output_lang, pairs
 
-input_lang, output_lang, pairs = prepareData('eng', 'fra', True)
-#input_lang, output_lang, pairs = prepareData('eng', 'cmn', True)
+input_lang, output_lang, pairs = prepareData('eng', 'cmn', True)
+#input_lang, output_lang, pairs = prepareData('eng', 'fra', True)
 print(random.choice(pairs))
 
 class EncoderRNN(nn.Module):
@@ -203,6 +217,8 @@ class AttnDecoderRNN(nn.Module):
 def indexesFromSentence(lang, sentence):
     return [lang.word2index[word] for word in sentence.split(' ')]
 
+def indexesFromSentence_Chinese(lang, sentence):
+    return [lang.word2index[word] for word in sentence]
 
 def variableFromSentence(lang, sentence):
     indexes = indexesFromSentence(lang, sentence)
@@ -213,8 +229,22 @@ def variableFromSentence(lang, sentence):
     else:
         return result
 
+def variableFromSentence_Chinese(lang, sentence):
+    indexes = indexesFromSentence_Chinese(lang, sentence)
+    indexes.append(EOS_token)
+    result = Variable(torch.LongTensor(indexes).view(-1, 1))
+    if use_cuda:
+        return result.cuda()
+    else:
+        return result
+
 def variablesFromPair(pair):
     input_variable = variableFromSentence(input_lang, pair[0])
+    target_variable = variableFromSentence(output_lang, pair[1])
+    return (input_variable, target_variable)
+
+def variablesFromPair_Chinese(pair):
+    input_variable = variableFromSentence_Chinese(input_lang, pair[0])
     target_variable = variableFromSentence(output_lang, pair[1])
     return (input_variable, target_variable)
 
@@ -228,6 +258,8 @@ def train(input_variable, target_variable, encoder, decoder, encoder_optimizer, 
 
     input_length = input_variable.size()[0]
     target_length = target_variable.size()[0]
+    # print("input_length: {}".format(input_length))
+    # print("target_length: {}".format(target_length))
 
     encoder_outputs = Variable(torch.zeros(max_length, encoder.hidden_size))
     encoder_outputs = encoder_outputs.cuda() if use_cuda else encoder_outputs
@@ -314,7 +346,7 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
 
     encoder_optimizer = optim.SGD(encoder.parameters(), lr=learning_rate)
     decoder_optimizer = optim.SGD(decoder.parameters(), lr=learning_rate)
-    training_pairs = [variablesFromPair(random.choice(pairs))
+    training_pairs = [variablesFromPair_Chinese(random.choice(pairs))
                       for i in range(n_iters)]
     criterion = nn.NLLLoss()
 
@@ -342,7 +374,7 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
     showPlot(plot_losses)
 
 def evaluate(encoder, decoder, sentence, max_length=MAX_LENGTH):
-    input_variable = variableFromSentence(input_lang, sentence)
+    input_variable = variableFromSentence_Chinese(input_lang, sentence)
     input_length = input_variable.size()[0]
     encoder_hidden = encoder.initHidden()
 
@@ -399,13 +431,15 @@ if use_cuda:
     encoder1 = encoder1.cuda()
     attn_decoder1 = attn_decoder1.cuda()
 
-#trainIters(encoder1, attn_decoder1, 75000, print_every=5000)
-trainIters(encoder1, attn_decoder1, 3000, print_every=1000)
+trainIters(encoder1, attn_decoder1, 75000, print_every=5000)
+#trainIters(encoder1, attn_decoder1, 2000, print_every=1000)
 
 evaluateRandomly(encoder1, attn_decoder1)
 
 output_words, attentions = evaluate(
-    encoder1, attn_decoder1, "je suis trop froid .")
+    encoder1, attn_decoder1, normalizeString("我很好奇。"))
+output_sentence = ' '.join(output_words)
+print("the translate result: ", output_sentence)
 print(attentions)
 plt.matshow(attentions.numpy())
 plt.show()

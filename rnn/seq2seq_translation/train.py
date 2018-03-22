@@ -182,5 +182,5 @@ if __name__ == "__main__":
         attn_decoder1 = attn_decoder1.cuda()
 
     # trainIters(encoder1, attn_decoder1, 75000, print_every=5000)
-    trainIters(encoder1, attn_decoder1, 15000, print_every=1000)
+    trainIters(encoder1, attn_decoder1, 50000, print_every=1000)
     evaluateRandomly(encoder1, attn_decoder1)
