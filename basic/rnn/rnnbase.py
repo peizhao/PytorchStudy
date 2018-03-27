@@ -1,6 +1,7 @@
 import torch
 from torch.autograd import Variable
 from torch import nn
+import numpy as np
 
 print("Basic Ops of RNNCell ...")
 rnn_single = nn.RNNCell(input_size = 100, hidden_size=200)
@@ -111,3 +112,25 @@ lstmOut, lstmHiden = lstmNet(input)
 print("rnnOut shape: {}  runnHiden Shape: {}".format(rnnOut.shape, rnnHiden.shape))
 print("gruOut shape: {}  gruHiden Shape: {}".format(gruOut.shape, gruHiden.shape))
 print("lstmOut shape: {}  lstmHiden Shape: {}".format(lstmOut.shape, lstmHiden[0].shape))
+
+print("input Fix-length sequence, output Fix length sequence")
+rnnNet = nn.RNN(10,20,1)
+gruNet = nn.GRU(10,20,1)
+lstmNet = nn.LSTM(10,20,1)
+input = Variable(torch.randn(6,1,10))    # seq=6, batch=1, input_num =10
+rnnOut, _ = rnnNet(input)
+gruOut, _ = grnNet(input)
+lstmOut, _ = lstmNet(input)
+print("rnnOut shape: {} ".format(rnnOut.shape))
+print("gruOut shape: {} ".format(gruOut.shape))
+print("lstmOut shape: {} ".format(lstmOut.shape))
+
+print("input vector, output sequence")
+rnnNet = nn.RNN(10,20,1)
+input = Variable(torch.randn(1,1,10))
+output= np.zeros((6,1,20))
+output = Variable(torch.from_numpy(output))
+for i in range(6):
+    out, _ = rnnNet(input)
+    output[i,:,:] = out
+print(output[1,:,:])
