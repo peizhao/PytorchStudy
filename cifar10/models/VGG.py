@@ -2,7 +2,7 @@ import numpy as np
 import torch
 from torch import nn
 from torch.autograd import Variable
-
+from basic.utils.visualize import *
 
 def vgg_block(num_convs, in_channels, out_channels):
     """
@@ -56,6 +56,9 @@ if __name__ == "__main__":
     data = Variable(data)
     net = VGGNet()
     x = net.features(data)
+    g = make_dot(x)
+    g.render("vgg")
+
     print("x shape: {}".format(x.shape))
     x = x.view(x.shape[0], -1)
     print("x shape after view: {}".format(x.shape))
