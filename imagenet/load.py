@@ -51,6 +51,27 @@ def loadModelDictDataParallel():
     nn.cuda()
     os.remove(temp_file)
 
+def loadModelFromCudaToCpuDirect():
+    mm = models.__dict__['resnet18']()
+    mm.cuda()
+    torch.save(mm, temp_file)
+    nnt=torch.load(temp_file, map_location=lambda storage, loc: storage)
+    os.remove(temp_file)
+
+def loadModelFromCpuToGpuDirect():
+    mm = models.__dict__['resnet18']()
+    torch.save(mm, temp_file)
+    nnt=torch.load(temp_file, map_location=lambda storage, loc: storage.cuda(0))
+    os.remove(temp_file)
+
+def saveModelFromParallelGpuToCpu():
+    mm = models.__dict__['resnet18']()
+    mm = torch.nn.DataParallel(mm).cuda()
+    mm.cpu()
+    torch.save(mm, temp_file)
+    nnt = torch.load(temp_file)
+    os.remove(temp_file)
+
 if __name__ == "__main__":
     loadModel()
     print('loadModel done')
@@ -60,3 +81,8 @@ if __name__ == "__main__":
     print('loadModelDataParallel done')
     loadModelDictDataParallel()
     print('loadModelDictDataParallel done')
+    loadModelFromCudaToCpuDirect()
+    print('loadModelFromCudaToCpuDirect done')
+    loadModelFromCpuToGpuDirect()
+    print('loadModelFromCpuToGpuDirect done')
+    saveModelFromParallelGpuToCpu()
