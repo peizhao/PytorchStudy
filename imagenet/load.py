@@ -64,12 +64,12 @@ def loadModelFromCpuToGpuDirect():
     nnt=torch.load(temp_file, map_location=lambda storage, loc: storage.cuda(0))
     os.remove(temp_file)
 
-def saveModelFromParallelGpuToCpu():
+def loadModelFromParallelGpuToCpu():
     mm = models.__dict__['resnet18']()
     mm = torch.nn.DataParallel(mm).cuda()
-    mm.cpu()
     torch.save(mm, temp_file)
-    nnt = torch.load(temp_file)
+    state_dict = torch.load(temp_file)
+    nn = state_dict.module
     os.remove(temp_file)
 
 if __name__ == "__main__":
@@ -85,4 +85,5 @@ if __name__ == "__main__":
     print('loadModelFromCudaToCpuDirect done')
     loadModelFromCpuToGpuDirect()
     print('loadModelFromCpuToGpuDirect done')
-    saveModelFromParallelGpuToCpu()
+    loadModelFromParallelGpuToCpu()
+    print('loadModelFromParallelGpuToCpu done')
